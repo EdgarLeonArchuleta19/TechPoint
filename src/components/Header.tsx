@@ -11,14 +11,14 @@ export const Header: React.FC = () => {
     <header className="fixed top-0 left-0 right-0 z-50 apple-glass-header border-b border-black/[0.06]">
       <div className="max-w-5xl mx-auto px-3.5 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
         
-        {/* Brand Logo with SOLUCIONES TECNOLÓGICAS subtitle */}
+        {/* Brand Logo (General TECHPOINT brand without division subtitle) */}
         <a
           href="#inicio"
           onClick={closeMenu}
           className="flex items-center focus:outline-none min-w-0"
           aria-label="TECHPOINT inicio"
         >
-          <TechPointLogo size="sm" variant="default" showSubtitle={true} />
+          <TechPointLogo size="sm" variant="default" showSubtitle={false} />
         </a>
 
         {/* Apple.com Ultra-Clean Desktop Navigation */}

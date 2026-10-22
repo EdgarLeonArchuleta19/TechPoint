@@ -2,7 +2,7 @@ import React from 'react';
 
 interface TechPointLogoProps {
   className?: string;
-  variant?: 'default' | 'light' | 'icon-only' | 'stacked';
+  variant?: 'default' | 'light' | 'icon-only';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showSubtitle?: boolean;
   subtitleText?: string;
@@ -28,39 +28,23 @@ export const TechPointLogo: React.FC<TechPointLogoProps> = ({
   className = "",
   variant = 'default',
   size = 'md',
-  showSubtitle = true,
+  showSubtitle = false,
   subtitleText = "SOLUCIONES TECNOLÓGICAS",
 }) => {
   if (variant === 'icon-only') {
     return <TechPointIcon className={className} />;
   }
 
-  if (variant === 'stacked') {
-    const stackedSizes = {
-      sm: "w-28 sm:w-32",
-      md: "w-36 sm:w-44",
-      lg: "w-44 sm:w-56",
-      xl: "w-52 sm:w-64",
-    };
-    return (
-      <img
-        src={`${baseUrl}logo-techpoint.png`}
-        alt="TECHPOINT — Soluciones Tecnológicas"
-        className={`object-contain select-none ${stackedSizes[size]} ${className}`}
-      />
-    );
-  }
-
   const iconSizes = {
-    sm: "w-8 h-8 sm:w-9 sm:h-9",
-    md: "w-10 h-10 sm:w-11 sm:h-11",
-    lg: "w-12 h-12 sm:w-14 sm:h-14",
+    sm: "w-7 h-7 sm:w-8 sm:h-8",
+    md: "w-9 h-9 sm:w-10 sm:h-10",
+    lg: "w-11 h-11 sm:w-12 sm:h-12",
     xl: "w-14 h-14 sm:w-16 sm:h-16",
   };
 
   const wordmarkHeights = {
     sm: "h-4 sm:h-[18px]",
-    md: "h-5 sm:h-6",
+    md: "h-5 sm:h-[22px]",
     lg: "h-6 sm:h-7",
     xl: "h-7 sm:h-8",
   };
@@ -72,7 +56,7 @@ export const TechPointLogo: React.FC<TechPointLogoProps> = ({
     xl: "text-[10px] sm:text-[12px] tracking-[0.3em]",
   };
 
-  const subtitleColor = variant === 'light' ? 'text-blue-200/80' : 'text-[#0B1D3A]';
+  const subtitleColor = variant === 'light' ? 'text-blue-200/80' : 'text-[#86868B]';
 
   return (
     <div className={`inline-flex items-center gap-2 sm:gap-2.5 select-none ${className}`}>
@@ -90,7 +74,7 @@ export const TechPointLogo: React.FC<TechPointLogoProps> = ({
         />
         {showSubtitle && (
           <span
-            className={`font-medium uppercase font-sans mt-0.5 leading-none whitespace-nowrap ${subtitleSizes[size]} ${subtitleColor}`}
+            className={`font-semibold uppercase font-sans mt-1 leading-none whitespace-nowrap ${subtitleSizes[size]} ${subtitleColor}`}
           >
             {subtitleText}
           </span>

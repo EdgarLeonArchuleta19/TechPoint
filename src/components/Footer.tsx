@@ -12,11 +12,11 @@ export const Footer: React.FC<FooterProps> = ({ onOpenOrderModal }) => {
   return (
     <footer className="bg-[#F5F5F7] text-[#86868B] pt-8 pb-24 sm:py-10 border-t border-black/[0.08]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-center sm:text-left">
-        <TechPointLogo size="sm" variant="default" showSubtitle={true} />
+        <TechPointLogo size="sm" variant="default" showSubtitle={false} />
 
         <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5">
           <span>
-            Copyright © {currentYear} {siteConfig.fullName}. {siteConfig.location.full}.
+            Copyright © {currentYear} {siteConfig.name}. {siteConfig.location.full}.
           </span>
           <button
             type="button"
