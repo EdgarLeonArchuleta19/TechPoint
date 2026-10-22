@@ -7,13 +7,15 @@ interface TechPointLogoProps {
   showSubtitle?: boolean;
 }
 
+const baseUrl = import.meta.env.BASE_URL;
+
 export const TechPointIcon: React.FC<{ className?: string; size?: number }> = ({
   className = "w-9 h-9",
   size,
 }) => {
   return (
     <img
-      src="/logo-icon.png"
+      src={`${baseUrl}logo-icon.png`}
       alt="TECHPOINT Icon"
       className={`object-contain select-none ${className}`}
       style={size ? { width: size, height: size } : undefined}
@@ -40,7 +42,7 @@ export const TechPointLogo: React.FC<TechPointLogoProps> = ({
     };
     return (
       <img
-        src="/logo-techpoint.png"
+        src={`${baseUrl}logo-techpoint.png`}
         alt="TECHPOINT — Soluciones Tecnológicas"
         className={`object-contain select-none ${stackedSizes[size]} ${className}`}
       />
@@ -73,14 +75,14 @@ export const TechPointLogo: React.FC<TechPointLogoProps> = ({
   return (
     <div className={`inline-flex items-center gap-2 sm:gap-2.5 select-none ${className}`}>
       <img
-        src="/logo-icon.png"
+        src={`${baseUrl}logo-icon.png`}
         alt="TECHPOINT Símbolo"
         className={`object-contain shrink-0 ${iconSizes[size]}`}
       />
 
       <div className="flex flex-col justify-center">
         <img
-          src="/logo-wordmark.png"
+          src={`${baseUrl}logo-wordmark.png`}
           alt="TECHPOINT"
           className={`object-contain object-left ${wordmarkHeights[size]}`}
         />
