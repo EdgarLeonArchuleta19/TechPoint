@@ -1,12 +1,33 @@
 import React, { useState } from 'react';
 import { Icon } from '@iconify/react';
-import TechPointLogo from './TechPointLogo';
+import { jsPDF } from 'jspdf';
 import { siteConfig } from '../config/siteConfig';
 
 interface ServiceOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const loadImageAsBase64 = (url: string): Promise<string | null> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(null);
+        return;
+      }
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+};
 
 export const ServiceOrderModal: React.FC<ServiceOrderModalProps> = ({ isOpen, onClose }) => {
   const [folio] = useState(() => {
@@ -20,471 +41,515 @@ export const ServiceOrderModal: React.FC<ServiceOrderModalProps> = ({ isOpen, on
     year: 'numeric',
   });
 
-  // Only 5 essential fields for fast service order generation
+  // 1. Tipo: 'servicio' o 'venta'
+  const [orderType, setOrderType] = useState<'servicio' | 'venta'>('servicio');
+
+  // 2. Datos del cliente
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
-  const [device, setDevice] = useState('');
-  const [serviceWork, setServiceWork] = useState('');
-  const [totalCost, setTotalCost] = useState('');
-  const [advancePayment, setAdvancePayment] = useState('');
+
+  // 3A. Campos si es Venta
+  const [selectedProductId, setSelectedProductId] = useState(siteConfig.products[0].id);
+  const [salePrice, setSalePrice] = useState(String(siteConfig.products[0].defaultPrice));
+
+  // 3B. Campos si es Servicio
+  const [selectedService, setSelectedService] = useState(siteConfig.serviceTypes[0]);
+  const [deviceReceived, setDeviceReceived] = useState('');
+  const [serviceTotal, setServiceTotal] = useState('');
+  const [serviceAdvance, setServiceAdvance] = useState('');
+
+  const [generating, setGenerating] = useState(false);
 
   if (!isOpen) return null;
 
-  const soluciones = siteConfig.divisions.soluciones;
-  const totalNum = parseFloat(totalCost) || 0;
-  const advanceNum = parseFloat(advancePayment) || 0;
-  const remainingNum = Math.max(0, totalNum - advanceNum);
+  const isVenta = orderType === 'venta';
+  const activeDivision = isVenta
+    ? siteConfig.divisions.electronicos
+    : siteConfig.divisions.soluciones;
 
-  const handleSendWhatsApp = () => {
-    const cleanPhone = clientPhone.replace(/\D/g, '');
-    const targetPhone = cleanPhone.length === 10 ? `52${cleanPhone}` : cleanPhone;
+  const selectedProductObj =
+    siteConfig.products.find((p) => p.id === selectedProductId) || siteConfig.products[0];
 
-    const message = [
-      `*TECHPOINT — Soluciones Tecnológicas*`,
-      `📍 Culiacán, Sinaloa | WhatsApp: ${soluciones.phoneDisplay}`,
-      `────────────────────`,
-      `📋 *ORDEN DE SERVICIO #${folio}*`,
-      `📅 *Fecha:* ${today}`,
-      `👤 *Cliente:* ${clientName || 'Cliente'}`,
-      `💻 *Equipo:* ${device || 'Equipo en revisión'}`,
-      `🛠️ *Servicio:* ${serviceWork || 'Diagnóstico y servicio técnico'}`,
-      `────────────────────`,
-      `💰 *Total:* $${totalNum.toLocaleString('es-MX')} MXN`,
-      `✅ *Anticipo:* $${advanceNum.toLocaleString('es-MX')} MXN`,
-      `📌 *Restante a liquidar:* $${remainingNum.toLocaleString('es-MX')} MXN`,
-      `────────────────────`,
-      `_Gracias por confiar en TECHPOINT. No nos hacemos responsables por pérdida de información si no se solicitó respaldo previo._`,
-    ].join('\n');
-
-    const encoded = encodeURIComponent(message);
-    const url = targetPhone
-      ? `https://wa.me/${targetPhone}?text=${encoded}`
-      : `https://wa.me/?text=${encoded}`;
-
-    window.open(url, '_blank', 'noopener,noreferrer');
+  const handleProductChange = (prodId: string) => {
+    setSelectedProductId(prodId);
+    const found = siteConfig.products.find((p) => p.id === prodId);
+    if (found) {
+      setSalePrice(String(found.defaultPrice));
+    }
   };
 
-  const handleGenerateProfessionalPdf = () => {
+  const totalNum = isVenta ? parseFloat(salePrice) || 0 : parseFloat(serviceTotal) || 0;
+  const advanceNum = isVenta ? totalNum : parseFloat(serviceAdvance) || 0;
+  const remainingNum = isVenta ? 0 : Math.max(0, totalNum - advanceNum);
+
+  const buildPdfDocument = async (): Promise<jsPDF> => {
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'letter',
+    });
+
     const baseUrl = window.location.origin + import.meta.env.BASE_URL;
-    const printWindow = window.open('', '_blank', 'width=850,height=950');
-    if (!printWindow) return;
+    const [iconData, wordmarkData] = await Promise.all([
+      loadImageAsBase64(`${baseUrl}logo-icon.png`),
+      loadImageAsBase64(`${baseUrl}logo-wordmark.png`),
+    ]);
 
-    const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <title>Orden de Servicio ${folio} - TECHPOINT</title>
-  <style>
-    @page {
-      size: letter;
-      margin: 16mm;
+    // Header Logo
+    if (iconData) {
+      doc.addImage(iconData, 'PNG', 18, 16, 14, 14);
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
+    if (wordmarkData) {
+      doc.addImage(wordmarkData, 'PNG', 35, 18, 42, 6);
+    } else {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(7, 22, 46);
+      doc.text('TECHPOINT', 35, 23);
     }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: #1D1D1F;
-      background: #FFFFFF;
-      line-height: 1.5;
-      padding: 12px;
-    }
-    .sheet {
-      max-width: 720px;
-      margin: 0 auto;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding-bottom: 24px;
-      border-bottom: 1.5px solid #E5E5EA;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .brand-icon {
-      width: 44px;
-      height: 44px;
-      object-fit: contain;
-    }
-    .brand-wordmark {
-      height: 22px;
-      object-fit: contain;
-      display: block;
-    }
-    .brand-sub {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.24em;
-      color: #0866E8;
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-    .folio-box {
-      text-align: right;
-    }
-    .folio-tag {
-      display: inline-block;
-      background: #F5F5F7;
-      color: #1D1D1F;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 999px;
-      letter-spacing: 0.04em;
-    }
-    .folio-number {
-      font-size: 24px;
-      font-weight: 700;
-      color: #0866E8;
-      letter-spacing: -0.03em;
-      margin-top: 4px;
-    }
-    .meta-date {
-      font-size: 12px;
-      color: #86868B;
-      margin-top: 2px;
-    }
-    .grid-info {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 28px;
-    }
-    .info-card {
-      background: #F5F5F7;
-      border-radius: 18px;
-      padding: 18px 20px;
-    }
-    .label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #86868B;
-      margin-bottom: 4px;
-    }
-    .value {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1D1D1F;
-    }
-    .value-sub {
-      font-size: 12px;
-      color: #86868B;
-      margin-top: 2px;
-    }
-    .service-section {
-      margin-top: 20px;
-      background: #FFFFFF;
-      border: 1.5px solid #E5E5EA;
-      border-radius: 18px;
-      padding: 22px;
-    }
-    .service-desc {
-      font-size: 15px;
-      color: #1D1D1F;
-      margin-top: 6px;
-      white-space: pre-wrap;
-    }
-    .summary-row {
-      margin-top: 24px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-    .summary-box {
-      border-radius: 18px;
-      padding: 16px 20px;
-      background: #F5F5F7;
-    }
-    .summary-box.highlight {
-      background: #07162E;
-      color: #FFFFFF;
-    }
-    .summary-box.highlight .label {
-      color: #7DD3FC;
-    }
-    .summary-box.highlight .amount {
-      color: #FFFFFF;
-    }
-    .amount {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1D1D1F;
-      letter-spacing: -0.02em;
-      margin-top: 2px;
-    }
-    .terms {
-      margin-top: 28px;
-      padding: 16px 20px;
-      border-radius: 14px;
-      background: #F5F5F7;
-      font-size: 10.5px;
-      color: #86868B;
-      line-height: 1.6;
-    }
-    .signatures {
-      margin-top: 48px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      text-align: center;
-    }
-    .sig-line {
-      border-top: 1px solid #D2D2D7;
-      padding-top: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      color: #86868B;
-    }
-    .footer {
-      margin-top: 36px;
-      text-align: center;
-      font-size: 11px;
-      color: #86868B;
-      border-top: 1px solid #E5E5EA;
-      padding-top: 16px;
-    }
-  </style>
-</head>
-<body>
-  <div class="sheet">
-    <div class="header">
-      <div class="brand">
-        <img src="${baseUrl}logo-icon.png" class="brand-icon" alt="TECHPOINT" />
-        <div>
-          <img src="${baseUrl}logo-wordmark.png" class="brand-wordmark" alt="TECHPOINT" />
-          <div class="brand-sub">SOLUCIONES TECNOLÓGICAS</div>
-        </div>
-      </div>
-      <div class="folio-box">
-        <span class="folio-tag">ORDEN DE SERVICIO</span>
-        <div class="folio-number">#${folio}</div>
-        <div class="meta-date">${today} • Culiacán, Sinaloa</div>
-      </div>
-    </div>
 
-    <div class="grid-info">
-      <div class="info-card">
-        <div class="label">Datos del Cliente</div>
-        <div class="value">${clientName || 'Cliente Mostrador'}</div>
-        <div class="value-sub">WhatsApp / Tel: ${clientPhone || 'No especificado'}</div>
-      </div>
-      <div class="info-card">
-        <div class="label">Equipo Recibido</div>
-        <div class="value">${device || 'Equipo en revisión'}</div>
-        <div class="value-sub">Atención: TECHPOINT Soluciones Tecnológicas</div>
-      </div>
-    </div>
+    // Division Subtitle under Logo
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(8, 102, 232);
+    doc.text(
+      isVenta ? 'ELECTRÓNICOS • VENTA DE ARTÍCULOS' : 'SOLUCIONES TECNOLÓGICAS • SERVICIOS',
+      35,
+      27.5
+    );
 
-    <div class="service-section">
-      <div class="label">Descripción del Servicio / Diagnóstico</div>
-      <div class="service-desc">${serviceWork || 'Revisión, diagnóstico y mantenimiento técnico.'}</div>
-    </div>
+    // Right Header Folio Box
+    doc.setFillColor(245, 245, 247);
+    doc.roundedRect(142, 15, 56, 20, 4, 4, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(134, 134, 139);
+    doc.text(isVenta ? 'NOTA DE VENTA' : 'ORDEN DE SERVICIO', 193, 21, { align: 'right' });
 
-    <div class="summary-row">
-      <div class="summary-box">
-        <div class="label">Costo Total</div>
-        <div class="amount">$${totalNum.toLocaleString('es-MX')} <span style="font-size:12px;font-weight:500;">MXN</span></div>
-      </div>
-      <div class="summary-box">
-        <div class="label">Anticipo Recibido</div>
-        <div class="amount">$${advanceNum.toLocaleString('es-MX')} <span style="font-size:12px;font-weight:500;">MXN</span></div>
-      </div>
-      <div class="summary-box highlight">
-        <div class="label">Saldo a Liquidar</div>
-        <div class="amount">$${remainingNum.toLocaleString('es-MX')} <span style="font-size:12px;font-weight:500;">MXN</span></div>
-      </div>
-    </div>
+    doc.setFontSize(14);
+    doc.setTextColor(8, 102, 232);
+    doc.text(`#${folio}`, 193, 27.5, { align: 'right' });
 
-    <div class="terms">
-      <strong>Condiciones de Servicio:</strong><br/>
-      1. TECHPOINT Soluciones Tecnológicas no se hace responsable por pérdida de datos o información si el cliente no solicitó respaldo previo.<br/>
-      2. En caso de requerir piezas o refacciones, el anticipo cubre el pedido del componente y no es reembolsable una vez solicitado.<br/>
-      3. Todo equipo debe ser recogido dentro de los 30 días posteriores al aviso de terminación.
-    </div>
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(134, 134, 139);
+    doc.text(`${today} • Culiacán, Sin.`, 193, 32.5, { align: 'right' });
 
-    <div class="signatures">
-      <div class="sig-line">Conformidad del Cliente (${clientName || 'Firma'})</div>
-      <div class="sig-line">TECHPOINT Soluciones Tecnológicas</div>
-    </div>
+    // Divider Line
+    doc.setDrawColor(229, 229, 234);
+    doc.setLineWidth(0.4);
+    doc.line(18, 41, 198, 41);
 
-    <div class="footer">
-      <strong>TECHPOINT — Soluciones Tecnológicas</strong> • Culiacán, Sinaloa, México • WhatsApp: ${soluciones.phoneDisplay}
-    </div>
-  </div>
-  <script>
-    window.onload = function() {
-      setTimeout(function() {
-        window.print();
-      }, 250);
-    };
-  </script>
-</body>
-</html>`;
+    // Client Card & Division Card
+    doc.setFillColor(245, 245, 247);
+    doc.roundedRect(18, 48, 87, 26, 4, 4, 'F');
+    doc.roundedRect(111, 48, 87, 26, 4, 4, 'F');
 
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(134, 134, 139);
+    doc.text('CLIENTE', 24, 55);
+    doc.text('ATENDIDO POR', 117, 55);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(29, 29, 31);
+    doc.text(clientName || 'Cliente Mostrador', 24, 62);
+    doc.text(activeDivision.name, 117, 62);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(134, 134, 139);
+    doc.text(`WhatsApp: ${clientPhone || 'No registrado'}`, 24, 68.5);
+    doc.text(`Tel Oficial: ${activeDivision.phoneDisplay}`, 117, 68.5);
+
+    // Details Box
+    doc.setDrawColor(229, 229, 234);
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(18, 82, 180, 42, 4, 4, 'FD');
+
+    if (isVenta) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(134, 134, 139);
+      doc.text('ARTÍCULO VENDIDO', 25, 91);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(29, 29, 31);
+      doc.text(selectedProductObj.name, 25, 100);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(8, 102, 232);
+      doc.text(`Categoría: ${selectedProductObj.category}`, 25, 107);
+
+      doc.setTextColor(134, 134, 139);
+      doc.setFontSize(9);
+      doc.text('Artículo entregado revisado y funcionando correctamente.', 25, 115);
+    } else {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(134, 134, 139);
+      doc.text('EQUIPO RECIBIDO', 25, 91);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(29, 29, 31);
+      doc.text(deviceReceived || 'Equipo en taller', 25, 98);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(134, 134, 139);
+      doc.text('SERVICIO A REALIZAR', 25, 108);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(8, 102, 232);
+      doc.text(selectedService, 25, 115);
+    }
+
+    // Financial Summary Cards
+    if (isVenta) {
+      doc.setFillColor(7, 22, 46);
+      doc.roundedRect(18, 132, 180, 24, 4, 4, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(125, 211, 252);
+      doc.text('TOTAL PAGADO', 26, 141);
+
+      doc.setFontSize(16);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`$${totalNum.toLocaleString('es-MX')} MXN`, 190, 147, { align: 'right' });
+    } else {
+      // 3 boxes: Total, Anticipo, Restante
+      doc.setFillColor(245, 245, 247);
+      doc.roundedRect(18, 132, 56, 24, 4, 4, 'F');
+      doc.roundedRect(80, 132, 56, 24, 4, 4, 'F');
+
+      doc.setFillColor(7, 22, 46);
+      doc.roundedRect(142, 132, 56, 24, 4, 4, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(134, 134, 139);
+      doc.text('COSTO TOTAL', 24, 140);
+      doc.text('ANTICIPO', 86, 140);
+
+      doc.setTextColor(125, 211, 252);
+      doc.text('SALDO A LIQUIDAR', 148, 140);
+
+      doc.setFontSize(13);
+      doc.setTextColor(29, 29, 31);
+      doc.text(`$${totalNum.toLocaleString('es-MX')} MXN`, 24, 149);
+      doc.text(`$${advanceNum.toLocaleString('es-MX')} MXN`, 86, 149);
+
+      doc.setTextColor(255, 255, 255);
+      doc.text(`$${remainingNum.toLocaleString('es-MX')} MXN`, 148, 149);
+    }
+
+    // Terms & Conditions Box
+    doc.setFillColor(245, 245, 247);
+    doc.roundedRect(18, 166, 180, 26, 4, 4, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(29, 29, 31);
+    doc.text('Condiciones y Garantía:', 24, 173);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(134, 134, 139);
+    if (isVenta) {
+      doc.text(
+        '• Artículo verificado en su funcionamiento al momento de la entrega.\n• Conserve esta nota digital para cualquier aclaración con TECHPOINT Electrónicos.',
+        24,
+        179
+      );
+    } else {
+      doc.text(
+        '• TECHPOINT Soluciones Tecnológicas no se responsabiliza por pérdida de datos si no se solicitó respaldo previo.\n• En pedidos de refacciones, el anticipo cubre el componente solicitado. Equipos deben recogerse dentro de 30 días.',
+        24,
+        179
+      );
+    }
+
+    // Footer
+    doc.setDrawColor(229, 229, 234);
+    doc.line(18, 206, 198, 206);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(134, 134, 139);
+    doc.text(
+      `${activeDivision.name} • Culiacán, Sinaloa, México • WhatsApp: ${activeDivision.phoneDisplay}`,
+      108,
+      212,
+      { align: 'center' }
+    );
+
+    return doc;
+  };
+
+  const handleDownloadPdfOnly = async () => {
+    setGenerating(true);
+    try {
+      const doc = await buildPdfDocument();
+      doc.save(`TECHPOINT-${folio}.pdf`);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleShareWhatsAppWithPdf = async () => {
+    setGenerating(true);
+    try {
+      const doc = await buildPdfDocument();
+      const fileName = `TECHPOINT-${folio}.pdf`;
+
+      const cleanPhone = clientPhone.replace(/\D/g, '');
+      const targetPhone = cleanPhone.length === 10 ? `52${cleanPhone}` : cleanPhone;
+
+      const message = isVenta
+        ? [
+            `*${activeDivision.name}*`,
+            `📍 Culiacán, Sinaloa | WhatsApp: ${activeDivision.phoneDisplay}`,
+            `────────────────────`,
+            `🧾 *NOTA DE VENTA #${folio}*`,
+            `📅 *Fecha:* ${today}`,
+            `👤 *Cliente:* ${clientName || 'Cliente'}`,
+            `🎧 *Artículo:* ${selectedProductObj.name} (${selectedProductObj.category})`,
+            `💰 *Total:* $${totalNum.toLocaleString('es-MX')} MXN`,
+            `────────────────────`,
+            `_¡Gracias por tu compra en TECHPOINT Electrónicos! Te adjunto tu nota en PDF._`,
+          ].join('\n')
+        : [
+            `*${activeDivision.name}*`,
+            `📍 Culiacán, Sinaloa | WhatsApp: ${activeDivision.phoneDisplay}`,
+            `────────────────────`,
+            `📋 *ORDEN DE SERVICIO #${folio}*`,
+            `📅 *Fecha:* ${today}`,
+            `👤 *Cliente:* ${clientName || 'Cliente'}`,
+            `💻 *Equipo recibido:* ${deviceReceived || 'Equipo en revisión'}`,
+            `🛠️ *Servicio:* ${selectedService}`,
+            `────────────────────`,
+            `💰 *Total:* $${totalNum.toLocaleString('es-MX')} MXN`,
+            `✅ *Anticipo:* $${advanceNum.toLocaleString('es-MX')} MXN`,
+            `📌 *Restante:* $${remainingNum.toLocaleString('es-MX')} MXN`,
+            `────────────────────`,
+            `_Gracias por confiar en TECHPOINT. Te adjunto tu orden de servicio en PDF._`,
+          ].join('\n');
+
+      // 1. Download the PDF file automatically so it's saved & ready to drop in chat
+      doc.save(fileName);
+
+      // 2. Open WhatsApp directly to the client's phone number entered in the form
+      const encoded = encodeURIComponent(message);
+      const waUrl = targetPhone
+        ? `https://wa.me/${targetPhone}?text=${encoded}`
+        : `https://wa.me/?text=${encoded}`;
+
+      window.open(waUrl, '_blank', 'noopener,noreferrer');
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-      <div className="bg-white rounded-[28px] max-w-xl w-full p-6 sm:p-8 shadow-2xl my-auto apple-fade-1">
+      <div className="bg-white rounded-[28px] max-w-md w-full p-6 sm:p-8 shadow-2xl my-auto apple-fade-1">
         
-        {/* Minimal Apple Header */}
-        <div className="flex items-center justify-between pb-5 border-b border-black/[0.06]">
+        {/* Top Bar */}
+        <div className="flex items-center justify-between pb-4 border-b border-black/[0.06]">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-wider text-[#0866E8]">
-              TECHPOINT Soluciones Tecnológicas
+              Folio #{folio}
             </p>
-            <h3 className="text-xl sm:text-2xl font-semibold text-[#1D1D1F] tracking-tight mt-0.5">
-              Orden de Servicio <span className="text-[#86868B] font-normal">#{folio}</span>
+            <h3 className="text-xl font-semibold text-[#1D1D1F] tracking-tight">
+              Generar Orden / Nota
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-[#F5F5F7] hover:bg-[#E8E8ED] text-[#1D1D1F] flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-[#F5F5F7] hover:bg-[#E8E8ED] text-[#1D1D1F] flex items-center justify-center transition-colors"
             aria-label="Cerrar"
           >
             <Icon icon="solar:close-circle-linear" className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Streamlined 5-Field Form */}
-        <div className="space-y-4 py-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div>
-              <label className="block text-xs font-medium text-[#86868B] mb-1.5">
-                Nombre del cliente
-              </label>
-              <input
-                type="text"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                placeholder="Ej. Carlos Mendoza"
-                className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-[#86868B] mb-1.5">
-                WhatsApp del cliente (opcional)
-              </label>
-              <input
-                type="tel"
-                value={clientPhone}
-                onChange={(e) => setClientPhone(e.target.value)}
-                placeholder="10 dígitos (ej. 6671234567)"
-                className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
-              />
-            </div>
+        {/* Step 1: Seleccionar Tipo (Servicio o Venta) */}
+        <div className="mt-5">
+          <label className="block text-xs font-medium text-[#86868B] mb-1.5">
+            1. Tipo de movimiento
+          </label>
+          <div className="p-1 rounded-2xl bg-[#F5F5F7] grid grid-cols-2 gap-1">
+            <button
+              type="button"
+              onClick={() => setOrderType('servicio')}
+              className={`py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                !isVenta
+                  ? 'bg-white text-[#0866E8] shadow-sm'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              }`}
+            >
+              Servicio
+            </button>
+            <button
+              type="button"
+              onClick={() => setOrderType('venta')}
+              className={`py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                isVenta
+                  ? 'bg-white text-[#0866E8] shadow-sm'
+                  : 'text-[#86868B] hover:text-[#1D1D1F]'
+              }`}
+            >
+              Venta
+            </button>
           </div>
+        </div>
 
+        {/* Step 2: Nombre y Número del Cliente */}
+        <div className="mt-4 space-y-3.5">
           <div>
-            <label className="block text-xs font-medium text-[#86868B] mb-1.5">
-              Equipo recibido
+            <label className="block text-xs font-medium text-[#86868B] mb-1">
+              Nombre del cliente
             </label>
             <input
               type="text"
-              value={device}
-              onChange={(e) => setDevice(e.target.value)}
-              placeholder="Ej. Laptop HP Pavilion 15 (con cargador)"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              placeholder="Ej. Juan Pérez"
               className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#86868B] mb-1.5">
-              Servicio a realizar o falla
+            <label className="block text-xs font-medium text-[#86868B] mb-1">
+              Número de WhatsApp del cliente
             </label>
-            <textarea
-              rows={2}
-              value={serviceWork}
-              onChange={(e) => setServiceWork(e.target.value)}
-              placeholder="Ej. Mantenimiento interno, pasta térmica e instalación de SSD"
-              className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8] resize-none"
+            <input
+              type="tel"
+              value={clientPhone}
+              onChange={(e) => setClientPhone(e.target.value)}
+              placeholder="Ej. 6671234567"
+              className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3.5">
-            <div>
-              <label className="block text-xs font-medium text-[#86868B] mb-1.5">
-                Total ($ MXN)
-              </label>
-              <input
-                type="number"
-                value={totalCost}
-                onChange={(e) => setTotalCost(e.target.value)}
-                placeholder="0"
-                className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm font-semibold text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
-              />
-            </div>
+          {/* Step 3: Conditional Fields */}
+          {isVenta ? (
+            <>
+              <div>
+                <label className="block text-xs font-medium text-[#86868B] mb-1">
+                  Producto del catálogo
+                </label>
+                <select
+                  value={selectedProductId}
+                  onChange={(e) => handleProductChange(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm font-medium text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
+                >
+                  {siteConfig.products.map((prod) => (
+                    <option key={prod.id} value={prod.id}>
+                      {prod.name} — {prod.category}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div>
-              <label className="block text-xs font-medium text-[#86868B] mb-1.5">
-                Anticipo ($ MXN)
-              </label>
-              <input
-                type="number"
-                value={advancePayment}
-                onChange={(e) => setAdvancePayment(e.target.value)}
-                placeholder="0"
-                className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm font-semibold text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
-              />
-            </div>
-          </div>
+              <div>
+                <label className="block text-xs font-medium text-[#86868B] mb-1">
+                  Precio ($ MXN)
+                </label>
+                <input
+                  type="number"
+                  value={salePrice}
+                  onChange={(e) => setSalePrice(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm font-semibold text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <label className="block text-xs font-medium text-[#86868B] mb-1">
+                  Tipo de servicio
+                </label>
+                <select
+                  value={selectedService}
+                  onChange={(e) => setSelectedService(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm font-medium text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
+                >
+                  {siteConfig.serviceTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#86868B] mb-1">
+                  Equipo recibido
+                </label>
+                <input
+                  type="text"
+                  value={deviceReceived}
+                  onChange={(e) => setDeviceReceived(e.target.value)}
+                  placeholder="Ej. Laptop HP Pavilion / iPhone 13"
+                  className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-[#86868B] mb-1">
+                    Total ($ MXN)
+                  </label>
+                  <input
+                    type="number"
+                    value={serviceTotal}
+                    onChange={(e) => setServiceTotal(e.target.value)}
+                    placeholder="0"
+                    className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm font-semibold text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-[#86868B] mb-1">
+                    Anticipo ($ MXN)
+                  </label>
+                  <input
+                    type="number"
+                    value={serviceAdvance}
+                    onChange={(e) => setServiceAdvance(e.target.value)}
+                    placeholder="0"
+                    className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F7] text-sm font-semibold text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-[#0866E8]"
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Apple-Style Compact Summary Strip */}
-        <div className="rounded-2xl bg-[#F5F5F7] px-5 py-4 mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <TechPointLogo size="sm" variant="icon-only" />
-            <div>
-              <p className="text-xs font-semibold text-[#1D1D1F]">
-                {clientName || 'Cliente'} • {device || 'Equipo'}
-              </p>
-              <p className="text-[11px] text-[#86868B]">
-                Total: ${totalNum.toLocaleString('es-MX')} | Anticipo: ${advanceNum.toLocaleString('es-MX')}
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <span className="text-[10px] font-semibold uppercase text-[#86868B] block">
-              Restante
-            </span>
-            <span className="text-base font-bold text-[#0866E8]">
-              ${remainingNum.toLocaleString('es-MX')}
-            </span>
-          </div>
-        </div>
-
-        {/* Two Equal Action Buttons: PDF Profesional or Mensaje WhatsApp */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Action Buttons (No preview clutter) */}
+        <div className="mt-7 space-y-2.5">
           <button
             type="button"
-            onClick={handleGenerateProfessionalPdf}
-            className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-full bg-[#1D1D1F] hover:bg-[#0866E8] text-white font-medium text-xs sm:text-sm transition-colors"
+            disabled={generating}
+            onClick={handleShareWhatsAppWithPdf}
+            className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-full bg-[#0866E8] hover:bg-[#0055D4] text-white font-medium text-xs sm:text-sm transition-colors disabled:opacity-50"
           >
-            <Icon icon="solar:document-text-bold-duotone" className="w-4 h-4" />
-            <span>Generar PDF Profesional</span>
+            <Icon icon="logos:whatsapp-icon" className="w-4 h-4" />
+            <span>Enviar a su WhatsApp + Bajar PDF</span>
           </button>
 
           <button
             type="button"
-            onClick={handleSendWhatsApp}
-            className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-full bg-[#0866E8] hover:bg-[#0055D4] text-white font-medium text-xs sm:text-sm transition-colors"
+            disabled={generating}
+            onClick={handleDownloadPdfOnly}
+            className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-full bg-[#F5F5F7] hover:bg-[#E8E8ED] text-[#1D1D1F] font-medium text-xs sm:text-sm transition-colors disabled:opacity-50"
           >
-            <Icon icon="logos:whatsapp-icon" className="w-4 h-4" />
-            <span>Mandar por WhatsApp</span>
+            <Icon icon="solar:file-download-bold-duotone" className="w-4 h-4 text-[#0866E8]" />
+            <span>Solo descargar PDF</span>
           </button>
         </div>
 

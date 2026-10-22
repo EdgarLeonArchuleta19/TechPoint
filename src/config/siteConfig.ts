@@ -2,6 +2,7 @@ export interface MinimalProduct {
   id: string;
   name: string;
   category: string;
+  defaultPrice: number;
   iconifyIcon: string;
   whatsappMessage: string;
 }
@@ -62,11 +63,21 @@ export const siteConfig = {
     { label: "Electrónicos", href: "#accesorios" },
     { label: "Contacto", href: "#contacto" },
   ],
+  serviceTypes: [
+    "Mantenimiento preventivo y limpieza",
+    "Reparación de PC / Laptop",
+    "Formateo e instalación de Windows / Programas",
+    "Aumento de velocidad (SSD / RAM)",
+    "Reparación / Diagnóstico de Celular",
+    "Desarrollo de Página Web / Software",
+    "Otro servicio técnico",
+  ],
   products: [
     {
       id: "airpods-pro",
       name: "AirPods Pro",
       category: "Calidad Original",
+      defaultPrice: 650,
       iconifyIcon: "fluent-emoji-flat:headphone",
       whatsappMessage:
         "Hola TECHPOINT Electrónicos, me interesa comprar / consultar disponibilidad de los AirPods Pro calidad original.",
@@ -75,6 +86,7 @@ export const siteConfig = {
       id: "airpods-3",
       name: "AirPods 3",
       category: "Calidad Original",
+      defaultPrice: 550,
       iconifyIcon: "fluent-emoji-flat:musical-notes",
       whatsappMessage:
         "Hola TECHPOINT Electrónicos, quisiera consultar precio y disponibilidad de los AirPods 3 calidad original.",
@@ -83,6 +95,7 @@ export const siteConfig = {
       id: "cargador-iphone",
       name: "Cargador 20W USB-C",
       category: "iPhone • Calidad Original",
+      defaultPrice: 350,
       iconifyIcon: "fluent-emoji-flat:high-voltage",
       whatsappMessage:
         "Hola TECHPOINT Electrónicos, me interesa comprar el cargador rápido 20W USB-C para iPhone. ¿Tienen disponible?",
@@ -91,6 +104,7 @@ export const siteConfig = {
       id: "cables-iphone",
       name: "Cable USB-C / Lightning",
       category: "Carga Rápida",
+      defaultPrice: 200,
       iconifyIcon: "fluent-emoji-flat:electric-plug",
       whatsappMessage:
         "Hola TECHPOINT Electrónicos, quisiera comprar un cable de carga rápida para iPhone.",
