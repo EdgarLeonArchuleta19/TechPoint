@@ -5,6 +5,7 @@ interface TechPointLogoProps {
   variant?: 'default' | 'light' | 'icon-only' | 'stacked';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showSubtitle?: boolean;
+  subtitleText?: string;
 }
 
 const baseUrl = import.meta.env.BASE_URL;
@@ -28,6 +29,7 @@ export const TechPointLogo: React.FC<TechPointLogoProps> = ({
   variant = 'default',
   size = 'md',
   showSubtitle = true,
+  subtitleText = "SOLUCIONES TECNOLÓGICAS",
 }) => {
   if (variant === 'icon-only') {
     return <TechPointIcon className={className} />;
@@ -90,7 +92,7 @@ export const TechPointLogo: React.FC<TechPointLogoProps> = ({
           <span
             className={`font-medium uppercase font-sans mt-0.5 leading-none whitespace-nowrap ${subtitleSizes[size]} ${subtitleColor}`}
           >
-            SOLUCIONES TECNOLÓGICAS
+            {subtitleText}
           </span>
         )}
       </div>

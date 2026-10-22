@@ -1,6 +1,6 @@
 import React from 'react';
 import { Icon } from '@iconify/react';
-import { siteConfig, getWhatsAppUrl } from '../config/siteConfig';
+import { siteConfig, getElectronicosWhatsAppUrl } from '../config/siteConfig';
 
 const ProductVisual: React.FC<{ id: string }> = ({ id }) => {
   switch (id) {
@@ -77,23 +77,32 @@ export const AccessoriesSection: React.FC = () => {
     <section id="accesorios" className="py-12 sm:py-20 bg-[#F5F5F7]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         
-        {/* Classic Apple Two-Tone Section Headline */}
-        <div className="mb-10 sm:mb-12">
-          <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
-            <span className="text-[#1D1D1F]">Productos. </span>
-            <span className="text-[#86868B]">Accesorios calidad original.</span>
-          </h2>
+        {/* Division Eyebrow + Classic Apple Two-Tone Section Headline */}
+        <div className="mb-10 sm:mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#0866E8] mb-1.5">
+              División 02 • {siteConfig.divisions.electronicos.name}
+            </p>
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
+              <span className="text-[#1D1D1F]">Electrónicos. </span>
+              <span className="text-[#86868B]">Venta de artículos calidad original.</span>
+            </h2>
+          </div>
+
+          <span className="text-xs font-medium text-[#86868B]">
+            Ventas directas: {siteConfig.divisions.electronicos.phoneDisplay}
+          </span>
         </div>
 
-        {/* Clean 4-Card Apple Store Shelf: Title at Top, Product in Center */}
+        {/* Clean 4-Card Apple Store Shelf: All route to Electrónicos WhatsApp (+52 1 667 475 2676) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           {siteConfig.products.map((item) => (
             <a
               key={item.id}
-              href={getWhatsAppUrl(item.whatsappMessage)}
+              href={getElectronicosWhatsAppUrl(item.whatsappMessage)}
               target="_blank"
               rel="noopener noreferrer"
-              className="apple-card p-6 flex flex-col justify-between group"
+              className="apple-card p-5 sm:p-6 flex flex-col justify-between group"
             >
               {/* Apple Top-Left Typography */}
               <div>
@@ -112,8 +121,8 @@ export const AccessoriesSection: React.FC = () => {
 
               {/* Subtle Bottom Row */}
               <div className="flex items-center justify-between">
-                <span className="text-xs font-normal text-[#0866E8] group-hover:underline">
-                  Preguntar
+                <span className="text-xs font-medium text-[#0866E8] group-hover:underline">
+                  Comprar / Cotizar
                 </span>
                 <div className="w-7 h-7 rounded-full bg-[#F5F5F7] group-hover:bg-[#0866E8] text-[#1D1D1F] group-hover:text-white flex items-center justify-center transition-colors">
                   <Icon icon="solar:alt-arrow-right-linear" className="w-3.5 h-3.5" />

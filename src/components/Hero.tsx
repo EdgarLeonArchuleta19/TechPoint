@@ -1,12 +1,12 @@
 import React from 'react';
 import { Icon } from '@iconify/react';
-import { getWhatsAppUrl } from '../config/siteConfig';
+import { getSolucionesWhatsAppUrl, getElectronicosWhatsAppUrl } from '../config/siteConfig';
 
 export const Hero: React.FC = () => {
   return (
     <section
       id="inicio"
-      className="pt-28 pb-14 sm:pt-36 sm:pb-24 bg-white overflow-hidden"
+      className="pt-28 pb-14 sm:pt-36 sm:pb-20 bg-white overflow-hidden"
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
         
@@ -16,39 +16,95 @@ export const Hero: React.FC = () => {
           <span>Ubicados en Culiacán, Sinaloa</span>
         </div>
 
-        {/* Apple Giant Headline — Mobile First Sizing */}
+        {/* Apple Giant Headline */}
         <h1 className="apple-fade-1 text-3xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-[#1D1D1F] leading-[1.08] px-1">
           Tu punto en tecnología.
         </h1>
 
-        {/* Apple Neutral Gray Subtitle */}
-        <p className="apple-fade-2 mt-3 sm:mt-4 text-sm sm:text-lg md:text-xl text-[#86868B] max-w-xl mx-auto font-normal leading-relaxed px-2">
-          Reparación y mantenimiento de PC, laptops y celulares en Culiacán.{' '}
-          <span className="text-[#1D1D1F] font-medium">Páginas web y accesorios calidad original.</span>
+        {/* Apple Neutral Gray Subtitle explaining the 2 divisions */}
+        <p className="apple-fade-2 mt-3 sm:mt-4 text-sm sm:text-lg md:text-xl text-[#86868B] max-w-2xl mx-auto font-normal leading-relaxed px-2">
+          Dos divisiones especializadas para atenderte directamente según lo que necesites:
         </p>
 
-        {/* Responsive Action Pair: Full-width stack on phones, inline on tablet/desktop */}
-        <div className="apple-fade-2 mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 px-2">
-          <a
-            href={getWhatsAppUrl("Hola TECHPOINT, quiero preguntar por un servicio sin compromiso.")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3 rounded-full bg-[#0866E8] hover:bg-[#0055D4] text-white font-medium text-sm transition-colors active:scale-95"
-          >
-            Preguntar sin compromiso
-          </a>
+        {/* 2 Apple Division Selector Cards (Soluciones Tecnológicas vs Electrónicos) */}
+        <div className="apple-fade-2 mt-7 sm:mt-9 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
+          
+          {/* Division 1: Soluciones Tecnológicas */}
+          <div className="rounded-3xl bg-[#F5F5F7] p-5 sm:p-6 flex flex-col justify-between border border-black/[0.04]">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#0866E8]">
+                  División Servicios
+                </span>
+                <Icon icon="solar:laptop-minimalistic-bold-duotone" className="w-5 h-5 text-[#0866E8]" />
+              </div>
+              <h2 className="text-lg sm:text-xl font-semibold text-[#1D1D1F] tracking-tight">
+                TECHPOINT <span className="text-[#0866E8]">Soluciones Tecnológicas</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-[#86868B] mt-1.5 leading-relaxed">
+                Reparación y mantenimiento de PC, laptops, celulares, páginas web y software.
+              </p>
+            </div>
 
-          <a
-            href="#servicios"
-            className="w-full sm:w-auto py-2 inline-flex items-center justify-center gap-1 text-[#0866E8] hover:underline font-medium text-sm"
-          >
-            <span>Explorar servicios</span>
-            <Icon icon="solar:alt-arrow-right-linear" className="w-4 h-4 mt-0.5" />
-          </a>
+            <div className="mt-5 pt-3.5 border-t border-black/[0.06] flex items-center justify-between gap-2">
+              <a
+                href="#servicios"
+                className="text-xs font-medium text-[#1D1D1F] hover:text-[#0866E8] transition-colors"
+              >
+                Ver servicios ↓
+              </a>
+              <a
+                href={getSolucionesWhatsAppUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0866E8] hover:bg-[#0055D4] text-white text-xs font-medium transition-colors"
+              >
+                <span>WhatsApp Servicios</span>
+                <Icon icon="solar:alt-arrow-right-linear" className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Division 2: Electrónicos */}
+          <div className="rounded-3xl bg-[#F5F5F7] p-5 sm:p-6 flex flex-col justify-between border border-black/[0.04]">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D1D1F]">
+                  División Tienda
+                </span>
+                <Icon icon="solar:headphones-round-sound-bold-duotone" className="w-5 h-5 text-[#1D1D1F]" />
+              </div>
+              <h2 className="text-lg sm:text-xl font-semibold text-[#1D1D1F] tracking-tight">
+                TECHPOINT <span className="text-[#0866E8]">Electrónicos</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-[#86868B] mt-1.5 leading-relaxed">
+                Venta de artículos: AirPods Pro, AirPods 3, cargadores rápidos 20W y accesorios.
+              </p>
+            </div>
+
+            <div className="mt-5 pt-3.5 border-t border-black/[0.06] flex items-center justify-between gap-2">
+              <a
+                href="#accesorios"
+                className="text-xs font-medium text-[#1D1D1F] hover:text-[#0866E8] transition-colors"
+              >
+                Ver catálogo ↓
+              </a>
+              <a
+                href={getElectronicosWhatsAppUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1D1D1F] hover:bg-[#0866E8] text-white text-xs font-medium transition-colors"
+              >
+                <span>WhatsApp Compras</span>
+                <Icon icon="solar:alt-arrow-right-linear" className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+
         </div>
 
-        {/* Minimalist Apple Hardware Lineup Stage — Responsive for Mobile & Desktop */}
-        <div className="apple-fade-3 mt-8 sm:mt-12 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-2">
+        {/* Minimalist Apple Hardware Lineup Stage */}
+        <div className="apple-fade-3 mt-10 sm:mt-14 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-2">
           <svg
             viewBox="0 0 760 240"
             className="w-full h-auto"

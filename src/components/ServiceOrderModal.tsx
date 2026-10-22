@@ -20,6 +20,7 @@ export const ServiceOrderModal: React.FC<ServiceOrderModalProps> = ({ isOpen, on
     year: 'numeric',
   });
 
+  const [division, setDivision] = useState<'soluciones' | 'electronicos'>('soluciones');
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [deviceType, setDeviceType] = useState('Laptop');
@@ -32,6 +33,7 @@ export const ServiceOrderModal: React.FC<ServiceOrderModalProps> = ({ isOpen, on
 
   if (!isOpen) return null;
 
+  const activeDivision = siteConfig.divisions[division];
   const totalNum = parseFloat(totalCost) || 0;
   const advanceNum = parseFloat(advancePayment) || 0;
   const remainingNum = Math.max(0, totalNum - advanceNum);
@@ -41,20 +43,20 @@ export const ServiceOrderModal: React.FC<ServiceOrderModalProps> = ({ isOpen, on
     const targetPhone = cleanPhone.length === 10 ? `52${cleanPhone}` : cleanPhone;
 
     const message = [
-      `*TECHPOINT — Soluciones Tecnológicas*`,
-      `📍 Culiacán, Sinaloa | Tel: ${siteConfig.contact.phoneDisplay}`,
+      `*${activeDivision.name}*`,
+      `📍 Culiacán, Sinaloa | Tel: ${activeDivision.phoneDisplay}`,
       `----------------------------------`,
-      `📋 *ORDEN DE SERVICIO: #${folio}*`,
+      `📋 *ORDEN / NOTA: #${folio}*`,
       `📅 *Fecha:* ${today}`,
       `👤 *Cliente:* ${clientName || 'Cliente'}`,
-      `💻 *Equipo:* ${deviceType} - ${brandModel || 'Por especificar'}`,
-      `🔌 *Accesorios recibidos:* ${accessoriesLeft}`,
+      `💻 *Equipo / Artículo:* ${deviceType} - ${brandModel || 'Por especificar'}`,
+      `🔌 *Accesorios / Detalle:* ${accessoriesLeft}`,
       `🔍 *Estado físico:* ${physicalCondition}`,
-      `🛠️ *Servicio / Falla:* ${serviceWork || 'Revisión y diagnóstico'}`,
+      `🛠️ *Concepto:* ${serviceWork || 'Revisión / Venta'}`,
       `----------------------------------`,
-      `💰 *Total estimado:* $${totalNum.toLocaleString('es-MX')} MXN`,
-      `✅ *Anticipo:* $${advanceNum.toLocaleString('es-MX')} MXN`,
-      `📌 *Restante al entregar:* $${remainingNum.toLocaleString('es-MX')} MXN`,
+      `💰 *Total:* $${totalNum.toLocaleString('es-MX')} MXN`,
+      `✅ *Anticipo / Pagado:* $${advanceNum.toLocaleString('es-MX')} MXN`,
+      `📌 *Restante:* $${remainingNum.toLocaleString('es-MX')} MXN`,
       `----------------------------------`,
       `_Nota: TECHPOINT no se hace responsable por pérdida de información si no se solicitó respaldo previo. Equipos no recogidos después de 30 días causan cargo de almacenaje._`,
     ].join('\n');
@@ -82,7 +84,7 @@ export const ServiceOrderModal: React.FC<ServiceOrderModalProps> = ({ isOpen, on
               Folio #{folio}
             </span>
             <h3 className="text-lg sm:text-xl font-extrabold text-[#07162E]">
-              Generador de Orden de Servicio
+              Generador de Orden / Nota
             </h3>
           </div>
           <button
@@ -91,6 +93,32 @@ export const ServiceOrderModal: React.FC<ServiceOrderModalProps> = ({ isOpen, on
             aria-label="Cerrar"
           >
             <Icon icon="solar:close-circle-bold" className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Division Switcher */}
+        <div className="mt-5 p-1.5 rounded-2xl bg-[#F5F5F7] grid grid-cols-2 gap-1.5">
+          <button
+            type="button"
+            onClick={() => setDivision('soluciones')}
+            className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all ${
+              division === 'soluciones'
+                ? 'bg-white text-[#0866E8] shadow-sm'
+                : 'text-[#86868B] hover:text-[#1D1D1F]'
+            }`}
+          >
+            Soluciones Tecnológicas ({siteConfig.divisions.soluciones.phoneDisplay})
+          </button>
+          <button
+            type="button"
+            onClick={() => setDivision('electronicos')}
+            className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all ${
+              division === 'electronicos'
+                ? 'bg-white text-[#0866E8] shadow-sm'
+                : 'text-[#86868B] hover:text-[#1D1D1F]'
+            }`}
+          >
+            Electrónicos ({siteConfig.divisions.electronicos.phoneDisplay})
           </button>
         </div>
 
@@ -147,46 +175,46 @@ export const ServiceOrderModal: React.FC<ServiceOrderModalProps> = ({ isOpen, on
               type="text"
               value={brandModel}
               onChange={(e) => setBrandModel(e.target.value)}
-              placeholder="Ej. HP Pavilion 15 / iPhone 13"
+              placeholder="Ej. HP Pavilion 15 / AirPods Pro"
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F7FA] border border-slate-200 text-sm text-[#07162E] focus:outline-none focus:border-[#0866E8]"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-              Accesorios que deja
+              Accesorios que deja / Incluye
             </label>
             <input
               type="text"
               value={accessoriesLeft}
               onChange={(e) => setAccessoriesLeft(e.target.value)}
-              placeholder="Ej. Con cargador original / Sin funda"
+              placeholder="Ej. Con cargador original / Caja sellada"
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F7FA] border border-slate-200 text-sm text-[#07162E] focus:outline-none focus:border-[#0866E8]"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-              Estado físico al recibir
+              Estado físico
             </label>
             <input
               type="text"
               value={physicalCondition}
               onChange={(e) => setPhysicalCondition(e.target.value)}
-              placeholder="Ej. Rayones leves en tapa"
+              placeholder="Ej. Uso normal / Nuevo"
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F7FA] border border-slate-200 text-sm text-[#07162E] focus:outline-none focus:border-[#0866E8]"
             />
           </div>
 
           <div className="sm:col-span-2">
             <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-              Servicio a realizar o falla reportada
+              Servicio a realizar, falla o concepto de venta
             </label>
             <textarea
               rows={2}
               value={serviceWork}
               onChange={(e) => setServiceWork(e.target.value)}
-              placeholder="Ej. Mantenimiento preventivo, limpieza interna, cambio de pasta térmica MX-4 e instalación de SSD."
+              placeholder="Ej. Mantenimiento preventivo, limpieza interna y cambio de pasta térmica MX-4."
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F7FA] border border-slate-200 text-sm text-[#07162E] focus:outline-none focus:border-[#0866E8] resize-none"
             />
           </div>
@@ -224,10 +252,15 @@ export const ServiceOrderModal: React.FC<ServiceOrderModalProps> = ({ isOpen, on
           className="rounded-2xl bg-[#F5F7FA] border border-slate-200 p-5 mb-6 text-xs text-slate-700 space-y-3"
         >
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-            <TechPointLogo size="sm" variant="default" showSubtitle={true} />
+            <TechPointLogo
+              size="sm"
+              variant="default"
+              showSubtitle={true}
+              subtitleText={division === 'soluciones' ? 'SOLUCIONES TECNOLÓGICAS' : 'ELECTRÓNICOS'}
+            />
             <div className="text-right">
-              <div className="font-extrabold text-[#07162E] text-sm">ORDEN #{folio}</div>
-              <div className="text-slate-500">{today} • Culiacán, Sin.</div>
+              <div className="font-extrabold text-[#07162E] text-sm">FOLIO #{folio}</div>
+              <div className="text-slate-500">{today} • Tel: {activeDivision.phoneDisplay}</div>
             </div>
           </div>
 
@@ -237,11 +270,11 @@ export const ServiceOrderModal: React.FC<ServiceOrderModalProps> = ({ isOpen, on
               <strong className="text-[#07162E]">{clientName || '—'}</strong>
             </div>
             <div>
-              <span className="text-slate-400 font-semibold">Tel:</span>{' '}
+              <span className="text-slate-400 font-semibold">Tel Cliente:</span>{' '}
               <strong className="text-[#07162E]">{clientPhone || '—'}</strong>
             </div>
             <div>
-              <span className="text-slate-400 font-semibold">Equipo:</span>{' '}
+              <span className="text-slate-400 font-semibold">Equipo/Artículo:</span>{' '}
               <strong className="text-[#07162E]">{deviceType} {brandModel}</strong>
             </div>
             <div>
@@ -251,7 +284,7 @@ export const ServiceOrderModal: React.FC<ServiceOrderModalProps> = ({ isOpen, on
           </div>
 
           <div className="pt-1">
-            <span className="text-slate-400 font-semibold">Servicio / Diagnóstico:</span>{' '}
+            <span className="text-slate-400 font-semibold">Concepto:</span>{' '}
             <strong className="text-[#07162E]">{serviceWork || 'Revisión general'}</strong>
           </div>
 

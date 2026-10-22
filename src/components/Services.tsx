@@ -1,26 +1,35 @@
 import React from 'react';
 import { Icon } from '@iconify/react';
-import { getWhatsAppUrl } from '../config/siteConfig';
+import { siteConfig, getSolucionesWhatsAppUrl } from '../config/siteConfig';
 
 export const Services: React.FC = () => {
   return (
     <section id="servicios" className="py-12 sm:py-20 bg-[#F5F5F7]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         
-        {/* Classic Apple Two-Tone Section Headline */}
-        <div className="mb-7 sm:mb-12">
-          <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-snug">
-            <span className="text-[#1D1D1F]">Servicios. </span>
-            <span className="text-[#86868B]">Todo lo que tus equipos necesitan.</span>
-          </h2>
+        {/* Division Eyebrow + Classic Apple Two-Tone Section Headline */}
+        <div className="mb-7 sm:mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#0866E8] mb-1.5">
+              División 01 • {siteConfig.divisions.soluciones.name}
+            </p>
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight leading-snug">
+              <span className="text-[#1D1D1F]">Soluciones Tecnológicas. </span>
+              <span className="text-[#86868B]">Reparaciones y desarrollo.</span>
+            </h2>
+          </div>
+
+          <span className="text-xs font-medium text-[#86868B]">
+            Atención directa: {siteConfig.divisions.soluciones.phoneDisplay}
+          </span>
         </div>
 
-        {/* Apple Bento Grid — Mobile First */}
+        {/* Apple Bento Grid — All cards route to Soluciones Tecnológicas WhatsApp (+1 432 423-9392) */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
           
           {/* Tile 1: Main Hardware Tile (PC, Laptops, Celulares) */}
           <a
-            href={getWhatsAppUrl("Hola TECHPOINT, quiero preguntar sin compromiso por la reparación o mantenimiento de mi equipo.")}
+            href={getSolucionesWhatsAppUrl("Hola TECHPOINT Soluciones Tecnológicas, quiero preguntar sin compromiso por la reparación o mantenimiento de mi equipo.")}
             target="_blank"
             rel="noopener noreferrer"
             className="md:col-span-7 apple-card p-6 sm:p-10 flex flex-col justify-between sm:min-h-[300px] group"
@@ -58,7 +67,7 @@ export const Services: React.FC = () => {
 
           {/* Tile 2: Páginas Web y Software */}
           <a
-            href={getWhatsAppUrl("Hola TECHPOINT, me gustaría cotizar una página web o sistema sin compromiso.")}
+            href={getSolucionesWhatsAppUrl("Hola TECHPOINT Soluciones Tecnológicas, me gustaría cotizar una página web o sistema sin compromiso.")}
             target="_blank"
             rel="noopener noreferrer"
             className="md:col-span-5 apple-card-dark text-white p-6 sm:p-10 flex flex-col justify-between sm:min-h-[300px] group"
@@ -88,14 +97,14 @@ export const Services: React.FC = () => {
 
           {/* Tile 3: Otros Servicios */}
           <a
-            href={getWhatsAppUrl("Hola TECHPOINT, tengo una duda sobre un servicio tecnológico sin compromiso.")}
+            href={getSolucionesWhatsAppUrl("Hola TECHPOINT Soluciones Tecnológicas, tengo una duda sobre un servicio tecnológico sin compromiso.")}
             target="_blank"
             rel="noopener noreferrer"
             className="md:col-span-12 apple-card p-6 sm:p-9 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 group"
           >
             <div>
               <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#0866E8] mb-1">
-                Sin compromiso
+                Sin compromiso • Soluciones Tecnológicas
               </p>
               <h4 className="text-lg sm:text-2xl font-semibold text-[#1D1D1F] tracking-tight leading-snug">
                 ¿Necesitas otro servicio tecnológico?{' '}

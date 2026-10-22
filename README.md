@@ -23,9 +23,9 @@
 | Módulo | Descripción |
 | :--- | :--- |
 | **🍏 Apple-Grade Minimalist UI** | Interfaz inspirada en el sistema de diseño industrial de Apple (`#F5F5F7`, `#FFFFFF`, `#1D1D1F`, `#0866E8`), con encabezados bicolores, tarjetas Bento sin bordes ruidosos y barra superior *frosted glass*. |
-| **🛠️ Bento de Servicios** | Presentación directa de **Reparación y Mantenimiento** (PC, Laptops y Celulares), **Páginas Web y Software a Medida** y atención sin compromiso para cualquier falla tecnológica. |
-| **🎧 Vitrina de Productos** | Catálogo minimalista de accesorios calidad original (**AirPods Pro**, **AirPods 3**, **Cargador 20W USB-C** y **Cables Lightning / USB-C**) con ilustraciones vectoriales de estudio. |
-| **📋 Generador de Órdenes de Servicio (`#orden`)** | Herramienta interna integrada para taller que genera folios automáticos (`#TP-XXXX`), calcula anticipos/restantes, envía la nota formateada directo al WhatsApp del cliente e imprime el recibo en PDF. |
+| **🛠️ División 01: TECHPOINT Soluciones Tecnológicas** | Atención especializada en **Reparación y Mantenimiento** (PC, Laptops y Celulares), **Páginas Web y Software a Medida** y soporte técnico directo (`+1 (432) 423-9392`). |
+| **🎧 División 02: TECHPOINT Electrónicos** | Venta directa de artículos y accesorios calidad original (**AirPods Pro**, **AirPods 3**, **Cargador 20W USB-C** y **Cables Lightning / USB-C**) con canal de ventas independiente (`+52 1 667 475 2676`). |
+| **📋 Generador de Órdenes de Servicio (`#orden`)** | Herramienta interna integrada para ambas divisiones que genera folios automáticos (`#TP-XXXX`), calcula anticipos/restantes, envía la nota formateada directo al WhatsApp del cliente e imprime el recibo en PDF. |
 | **🔒 Seguridad & SEO Local** | Configuración de cabeceras HTTP de seguridad (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`) y datos estructurados JSON-LD (`LocalBusiness`) para posicionamiento en Culiacán, Sinaloa. |
 
 ---
