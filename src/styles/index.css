@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', sans-serif;
+    color: #1D1D1F;
+    background-color: #F5F5F7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: #F5F5F7;
+    color: #1D1D1F;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.035em;
+  }
+
+  ::selection {
+    background-color: #0866E8;
+    color: #ffffff;
+  }
+}
+
+/* Apple Global Frosted Header */
+.apple-glass-header {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+/* Smooth Apple Motion */
+@keyframes appleReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.apple-fade-1 {
+  animation: appleReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.apple-fade-2 {
+  animation: appleReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+}
+
+.apple-fade-3 {
+  animation: appleReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
+}
+
+/* Apple Store Card Hover */
+.apple-card {
+  background: #FFFFFF;
+  border-radius: 28px;
+  box-shadow: 2px 4px 16px rgba(0, 0, 0, 0.04);
+  transition: transform 0.45s cubic-bezier(0, 0, 0.5, 1), box-shadow 0.45s cubic-bezier(0, 0, 0.5, 1);
+}
+
+.apple-card:hover {
+  transform: scale(1.018);
+  box-shadow: 2px 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.apple-card-dark {
+  background: #07162E;
+  border-radius: 28px;
+  box-shadow: 2px 4px 16px rgba(7, 22, 46, 0.14);
+  transition: transform 0.45s cubic-bezier(0, 0, 0.5, 1), box-shadow 0.45s cubic-bezier(0, 0, 0.5, 1);
+}
+
+.apple-card-dark:hover {
+  transform: scale(1.018);
+  box-shadow: 2px 16px 36px rgba(7, 22, 46, 0.24);
+}
+
+/* Print Styles for Service Order PDF */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-order,
+  #printable-order * {
+    visibility: visible;
+  }
+  #printable-order {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

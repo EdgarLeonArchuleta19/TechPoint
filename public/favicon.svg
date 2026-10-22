@@ -1,0 +1,17 @@
+<svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="orbitPinGrad" x1="20" y1="20" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E88E5" />
+      <stop offset="0.5" stop-color="#0866E8" />
+      <stop offset="1" stop-color="#0D47A1" />
+    </linearGradient>
+    <linearGradient id="ringGrad" x1="10" y1="120" x2="190" y2="90" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0866E8" />
+      <stop offset="0.5" stop-color="#38BDF8" />
+      <stop offset="1" stop-color="#0866E8" />
+    </linearGradient>
+  </defs>
+  <path d="M 45 106 C 36 94 48 83 75 74 C 104 64 140 62 165 69 C 176 72 181 77 178 82" stroke="url(#ringGrad)" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.85" />
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M 100 28 C 69.07 28 44 53.07 44 84 C 44 116 83 158 96.5 171.5 C 98.4 173.4 101.6 173.4 103.5 171.5 C 117 158 156 116 156 84 C 156 53.07 130.93 28 100 28 Z M 100 58 C 114.36 58 126 69.64 126 84 C 126 98.36 114.36 110 100 110 C 85.64 110 74 98.36 74 84 C 74 69.64 85.64 58 100 58 Z" fill="url(#orbitPinGrad)" />
+  <path d="M 174 85 C 182 96 170 108 141 118 C 110 129 72 131 46 123 C 33 119 28 113 32 107" stroke="url(#ringGrad)" stroke-width="12" stroke-linecap="round" fill="none" />
+</svg>
