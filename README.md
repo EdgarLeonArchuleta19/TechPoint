@@ -8,7 +8,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript_5-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Iconify](https://img.shields.io/badge/Iconify_Duotone-0866E8?style=for-the-badge&logo=iconify&logoColor=white)](https://iconify.design/)
+[![Licencia](https://img.shields.io/badge/Licencia-Atribuci%C3%B3n--NoComercial-07162E?style=for-the-badge&logo=github&logoColor=white)](./LICENSE)
 
 ---
 
@@ -109,20 +109,30 @@ npm run build
 
 ---
 
-## 📋 Uso del Generador de Órdenes de Servicio
+## 📋 Uso del Generador de Notas y Órdenes (`#orden`)
 
-Para abrir el módulo de recepción de equipos desde cualquier dispositivo:
+Para abrir el módulo de emisión de notas desde cualquier dispositivo:
 1. Haz clic en el enlace **`Orden de Servicio`** ubicado en el pie de página, o navega directamente a `/#orden`.
-2. Captura los datos del cliente, equipo recibido, accesorios entregados, diagnóstico/servicio, costo total y anticipo.
+2. Elige la modalidad (**`Servicio / Reparación`** o **`Venta de Artículo`**) y llena los datos del cliente.
 3. Selecciona:
-   - **`Mandar Nota por WhatsApp al Cliente`** para enviar el comprobante desglosado directo a su número.
-   - **`Guardar PDF / Imprimir`** para generar la hoja de servicio membretada con el logotipo de **TECHPOINT**.
+   - **`Compartir archivo PDF por WhatsApp`** para adjuntar y enviar directamente el archivo `.pdf` de la nota formal.
+   - **`Descargar PDF`** para guardar o imprimir la nota membretada clásica de **TECHPOINT**.
+
+---
+
+## ⚖️ Licencia y Derechos de Autor
+
+Este proyecto está protegido bajo una **[Licencia de Uso No Comercial con Atribución Obligatoria](./LICENSE)** (*Copyright © 2026 [Edgar Leon Archuleta](https://github.com/EdgarLeonArchuleta19) & TECHPOINT*).
+
+- **✅ Atribución Obligatoria:** Cualquier referencia, estudio o bifurcación (*fork*) debe mantener de forma visible el crédito al autor original (**[@EdgarLeonArchuleta19](https://github.com/EdgarLeonArchuleta19)**) y el enlace a este repositorio.
+- **🚫 Prohibido el Uso Comercial:** Queda **estrictamente prohibido** utilizar, copiar, distribuir, vender o implementar este sistema, su diseño o su generador de notas PDF para fines comerciales, lucro o negocios de terceros sin autorización previa y por escrito del autor.
+- **🔒 Marca Registrada:** El nombre **TECHPOINT**, sus divisiones y logotipos son propiedad exclusiva y no pueden ser reutilizados.
 
 ---
 
 <div align="center">
 
-Desarrollado para **TECHPOINT — Soluciones Tecnológicas** • Culiacán, Sinaloa, México.  
-[**EdgarLeonArchuleta19**](https://github.com/EdgarLeonArchuleta19)
+Desarrollado por [**Edgar Leon Archuleta (@EdgarLeonArchuleta19)**](https://github.com/EdgarLeonArchuleta19) para **TECHPOINT** • Culiacán, Sinaloa, México.  
+*Todos los derechos reservados © 2026*
 
 </div>
